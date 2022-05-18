@@ -18,27 +18,30 @@ int row[] = { -1, 0, 1, 0 }, col[] = { 0, 1, 0 , -1 };
 int dijkstra(char labirinto[600][600], Ponto hercules, Ponto euterpe, int N, int M){
     int min_dist[600][600];
     int peso_t =0;
+    queue<Ponto> aVisitar;
+    Ponto acao, vizinho;
 
-    for(int i = 0; i <= N; i++)
-        for(int j = 0; j <= M; j++)
+    for(int i = 0; i <= N; i++){
+        for(int j = 0; j <= M; j++){
             min_dist[i][j] = INT_MAX;
+        }
+    }
 
     min_dist[hercules.x][hercules.y] = 0;
 
-    queue<Ponto> toVisit;
-    toVisit.push(hercules);
+    aVisitar.push(hercules);
 
-    while(!toVisit.empty()) {
-        Ponto act = toVisit.front();
-        toVisit.pop();
+    while(!aVisitar.empty()) {
+        acao = aVisitar.front();
+        aVisitar.pop();
 
         for(int i = 0; i < 4; i++) {
-            Ponto actTo = {act.x+row[i], act.y+col[i]};
-            peso_t = min_dist[act.x][act.y] + toInt(labirinto[actTo.x][actTo.y]);
+            vizinho = {acao.x+row[i], acao.y+col[i]};
+            peso_t = min_dist[acao.x][acao.y] + toInt(labirinto[vizinho.x][vizinho.y]);
 
-            if(labirinto[actTo.x][actTo.y] != '#' && min_dist[actTo.x][actTo.y] > peso_t) {
-                min_dist[actTo.x][actTo.y] = peso_t;
-                toVisit.push({actTo.x, actTo.y});
+            if(labirinto[vizinho.x][vizinho.y] != '#' && min_dist[vizinho.x][vizinho.y] > peso_t) {
+                min_dist[vizinho.x][vizinho.y] = peso_t;
+                aVisitar.push({vizinho.x, vizinho.y});
             }
         }
     }
