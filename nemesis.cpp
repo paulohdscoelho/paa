@@ -15,8 +15,8 @@ int toInt(char c) {
 
 int row[] = { -1, 0, 1, 0 }, col[] = { 0, 1, 0 , -1 };
 
-int dijkstra(char labirinto[500][500], Ponto hercules, Ponto euterpe, int N, int M){
-    int min_dist[500][500];
+int dijkstra(char labirinto[600][600], Ponto hercules, Ponto euterpe, int N, int M){
+    int min_dist[600][600];
     int peso_t =0;
 
     for(int i = 0; i <= N; i++)
@@ -49,7 +49,7 @@ int dijkstra(char labirinto[500][500], Ponto hercules, Ponto euterpe, int N, int
 int main(int argc, char **argv){
     int N, M;
     Ponto hercules, euterpe;
-    char labirinto[500][500], entrada;
+    char labirinto[600][600], entrada;
 
     cin >> N >> M;
 
@@ -62,10 +62,10 @@ int main(int argc, char **argv){
         for(int j = 1; j <= M; j++) {
             cin >> entrada;
             labirinto[i][j] = entrada;
-            if(labirinto[i][j] == 'H'){
+            if(entrada == 'H'){
                 hercules.x = i;
                 hercules.y = j;
-            }else if(labirinto[i][j] == 'E'){
+            }else if(entrada == 'E'){
                 euterpe.x = i;
                 euterpe.y = j;
             }
