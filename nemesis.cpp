@@ -28,7 +28,6 @@ int dijkstra(char labirinto[600][600], Ponto hercules, Ponto euterpe, int N, int
     }
 
     min_dist[hercules.x][hercules.y] = 0;
-
     aVisitar.push(hercules);
 
     while(!aVisitar.empty()) {

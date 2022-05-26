@@ -47,8 +47,6 @@ double kruskal(int n_aresta)
     int i, u, v;
     double teia=0;
 
-    qsort(arestas, n_aresta, sizeof(ARESTA),compare);
-
     for (i = 0; i < n_aresta; ++i)
     {
         u = parent(arestas[i].origem);
@@ -82,6 +80,7 @@ int main(int argc, char **argv)
             }
         }
 
+        qsort(arestas, k, sizeof(ARESTA),compare);
 
         for (i = 0; i < n; ++i)
             p[i] = i;

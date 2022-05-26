@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <queue>
+#include <iostream>
 
 using namespace std;
 
@@ -62,3 +63,45 @@ struct dinic {
         return F;
     }
 };
+
+int main(int argc, char **argv){
+    int N, M, G, a, b, res, m, i, j, k, max_flux=0;
+    int pontos[40], jogos[40][40], ptos_max ;
+    char op;
+    bool flag;
+
+    while(cin >> N >> M >> G && N > 0 && M > 0 && G > 0){
+        for(i = 0; i < N; i++){
+            pontos[i] = 0;
+            for (j = 0; j < N; j++)
+                jogos[i][j] = M;
+        }
+        for(i = 0; i < G; i++){
+            cin >> a >> op >> b;
+            jogos[a][b]--;
+            jogos[b][a]--;
+            if(op == '=')
+            {
+                pontos[a]++;
+                pontos[b]++;
+            }
+            else
+            {
+                pontos[b] += 2;
+            }
+        }
+        dinic D(N);
+        for(i = 0; i < N; i++) {
+            ptos_max = pontos[i];
+            for(j=0; j < N; j++){
+                if(i!=j){
+                    ptos_max += jogos[i][j]*2;
+                    D.add(i, j, ptos_max);
+                    printf("aresta: %d - %d capacidade: %d\n",i,j,ptos_max);
+                }
+            }
+        }
+    }
+
+    return 0;
+}

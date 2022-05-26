@@ -112,12 +112,16 @@ int main(int argc, char* argv[])
         {
             points[0] += 2 * games[0][i];
             res -= games[0][i];
+            printf("games[0][%d] = %d res = %d\n",i, games[0][i], res);
         }
+        printf("Pontos 0: %d\n",points[0]);
 
         flag = true;
-        for(i = 1; i < N; i++)
+        for(i = 1; i < N; i++){
+            printf("Pontos %d: %d\n",i,points[i]);
             if(points[i] >= points[0])
                 flag = false;
+        }
 
         if(!flag)
         {
