@@ -67,7 +67,7 @@ struct dinic {
 };
 
 int main(int argc, char **argv){
-    int N, M, G, a, b, i, j, k, S, T, jogos_flux, cap_jogos;
+    int N, M, G, a, b, i, j, k, S, T, jogos_flux, cap_jogos, max_flow;
     int pontos[40], jogos[40][40];
     set<int, greater<int> > inserido;
     char op;
@@ -130,11 +130,15 @@ int main(int argc, char **argv){
             D.add(i,T, cap_jogos);
         }
 
-        printf("Max Flow: S to T: %d\n",D.max_flow(S,T));
+        max_flow = D.max_flow(S,T);
 
         for(i = 1; i < N; i++)
             pontos[0] += 2 * jogos[0][i];
-        printf("Pontos 0: %d\n",pontos[0]);
+
+        if(pontos[0] >= max_flow)
+            cout << "Y" << endl;
+        else
+            cout << "N" << endl;
 
     }
 
