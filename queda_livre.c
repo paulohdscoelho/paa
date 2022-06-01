@@ -12,8 +12,6 @@ typedef struct {
     int x, y;
 }ponto;
 
-ARESTA arestas[300000];
-ponto pontos[300000];
 int p[300000];
 
 int compare(ARESTA *a, ARESTA *b)
@@ -42,12 +40,14 @@ double distancia(ponto a, ponto b)
     return hypot(b.x - a.x, b.y - a.y);
 }
 
-double kruskal(int n_aresta)
+double kruskal(ARESTA arestas[], int n_aresta)
 {
     int i, u, v;
     double teia=0;
+    
+    qsort(arestas, n_aresta, sizeof(ARESTA),compare);
 
-    for (i = 0; i < n_aresta; ++i)
+    for (i = 0; i < n_aresta; i++)
     {
         u = parent(arestas[i].origem);
         v = parent(arestas[i].destino);
@@ -63,10 +63,13 @@ double kruskal(int n_aresta)
 int main(int argc, char **argv)
 {
     int i, j, n, c, k;
+    ARESTA arestas[300000];
+    ponto pontos[300000];
+    
     scanf("%d", &c);
     while (c--)
     {
-        scanf("%d", &n);
+        scanf("%d", &n);	
 
         for (i = 0, k = 0; i < n; i++)
         {
@@ -79,14 +82,10 @@ int main(int argc, char **argv)
                 k++;
             }
         }
-
-        qsort(arestas, k, sizeof(ARESTA),compare);
-
-        for (i = 0; i < n; ++i)
+        for (i = 0; i < n; i++)
             p[i] = i;
 
-        printf("%.2lf\n", kruskal(k));
-
+        printf("%.2lf\n", kruskal(arestas,k));
     }
     return 0;
 }

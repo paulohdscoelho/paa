@@ -12,6 +12,8 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include <iterator>
+#include <set>
 
 using namespace std;
 
@@ -65,10 +67,10 @@ struct dinic {
 };
 
 int main(int argc, char **argv){
-    int N, M, G, a, b, res, m, i, j, k, max_flux=0;
-    int pontos[40], jogos[40][40], ptos_max ;
+    int N, M, G, a, b, i, j, k, S, T, jogos_flux, cap_jogos;
+    int pontos[40], jogos[40][40];
+    set<int, greater<int> > inserido;
     char op;
-    bool flag;
 
     while(cin >> N >> M >> G && N > 0 && M > 0 && G > 0){
         for(i = 0; i < N; i++){
@@ -90,17 +92,50 @@ int main(int argc, char **argv){
                 pontos[b] += 2;
             }
         }
-        dinic D(N);
-        for(i = 0; i < N; i++) {
-            ptos_max = pontos[i];
-            for(j=0; j < N; j++){
+
+        dinic D(50);
+
+        S = 49;
+        T = 48;
+        k = N;
+
+        inserido.clear();
+
+        for(i = 1; i < N; i++) {
+            for(j=1; j < N; j++){
                 if(i!=j){
-                    ptos_max += jogos[i][j]*2;
-                    D.add(i, j, ptos_max);
-                    printf("aresta: %d - %d capacidade: %d\n",i,j,ptos_max);
+                    D.add(S, k, jogos[i][j]*2);
+                    if(!inserido.count(i)){
+                        D.add(k, i, jogos[i][j]*2);
+                        inserido.insert(i);
+                    }
+
+                    if(!inserido.count(j)){
+                        D.add(k, j, jogos[i][j]*2);
+                        inserido.insert(j);
+                    }
+                    k++;
                 }
             }
         }
+
+        for(i=1; i<N; i++){
+            jogos_flux =0;
+            for(j=1; j<N; j++){
+                if(i!=j){
+                    jogos_flux+=jogos[i][j];
+                }
+            }
+            cap_jogos = ((jogos_flux*2) - pontos[i]) - 1;
+            D.add(i,T, cap_jogos);
+        }
+
+        printf("Max Flow: S to T: %d\n",D.max_flow(S,T));
+
+        for(i = 1; i < N; i++)
+            pontos[0] += 2 * jogos[0][i];
+        printf("Pontos 0: %d\n",pontos[0]);
+
     }
 
     return 0;
