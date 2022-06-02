@@ -1,213 +1,142 @@
+// Implementacao do Algoritmo de Dinic para fluxo maximo em redes
+//
+// Para usar, basta declarar com o numero de vertices
+// vertices sao indexados com 0, 1, ... n-1
+//
+// Exemplo:
+//
+// dinic D(10); // teremos 10 vertices indexados de 0 a 9
+// D.add(0, 1, 5); // adiciona aresta de 0 a 1 com capacidade 5
+// int flow = D.max_flow(0, 1); // computa o fluxo maximo de 0 a 1
+
+#include <vector>
+#include <queue>
 #include <iostream>
+#include <iterator>
+#include <set>
 
 using namespace std;
 
-#define MAX_VERTEX 3005
-#define MAX_EDGES 9000
-#define INF 0x3f3f3f3f
+struct dinic {
+    struct edge {
+        int to, cap, rev, flow;
+        bool res;
+        edge(int to_, int cap_, int rev_, bool res_)
+                : to(to_), cap(cap_), rev(rev_), flow(0), res(res_) {}
+    };
 
-int V, E, t, f, sz;
-int flow[2*MAX_EDGES], cap[2*MAX_EDGES], to[2*MAX_EDGES], prox[2*MAX_EDGES], last[MAX_VERTEX], path[MAX_VERTEX];
-bool visited[MAX_VERTEX], found;
+    vector<vector<edge>> g;
+    vector<int> lev, beg;
+    long long F;
+    dinic(int n) : g(n), F(0) {}
 
-int min(int a, int b)
-{
-    return (a < b) ? a : b;
-}
-
-void dfs(int u, int depth)
-{
-    int v, num;
-
-    if(u == t)
-    {
-        sz = depth;
-        found = true;
-        return;
+    void add(int a, int b, int c) {
+        g[a].emplace_back(b, c, g[b].size(), false);
+        g[b].emplace_back(a, 0, g[a].size()-1, true);
     }
-
-    for(num = last[u]; num != -1 && !found; num = prox[num])
-    {
-        v = to[num];
-
-        if(!visited[v] && flow[num] < cap[num])
-        {
-            visited[v] = true;
-            path[depth] = num;
-            dfs(v, depth + 1);
+    bool bfs(int s, int t) {
+        lev = vector<int>(g.size(), -1); lev[s] = 0;
+        beg = vector<int>(g.size(), 0);
+        queue<int> q; q.push(s);
+        while (q.size()) {
+            int u = q.front(); q.pop();
+            for (auto& i : g[u]) {
+                if (lev[i.to] != -1 or (i.flow == i.cap)) continue;
+                lev[i.to] = lev[u] + 1;
+                q.push(i.to);
+            }
         }
+        return lev[t] != -1;
     }
-}
-
-bool expanding()
-{
-    int i, aux;
-
-    for(i = 0; i < V; i++)
-        visited[i] = false;
-
-    found = false;
-    sz = 0;
-    dfs(0, 0);
-
-    if(!found)
-        return false;
-
-    aux = INF;
-
-    for(i = 0; i < sz; i++)
-        aux = min(aux, cap[path[i]] - flow[path[i]]);
-
-    f += aux;
-
-    for(i = 0; i < sz; i++)
-    {
-        flow[path[i]] += aux;
-        flow[path[i]^1] -= aux;
+    int dfs(int v, int s, int f = 0x3f3f3f3f) {
+        if (!f or v == s) return f;
+        for (int& i = beg[v]; i < g[v].size(); i++) {
+            auto& e = g[v][i];
+            if (lev[e.to] != lev[v] + 1) continue;
+            int foi = dfs(e.to, s, min(f, e.cap - e.flow));
+            if (!foi) continue;
+            e.flow += foi, g[e.to][e.rev].flow -= foi;
+            return foi;
+        }
+        return 0;
     }
+    long long max_flow(int s, int t) {
+        while (bfs(s, t)) while (int ff = dfs(s, t)) F += ff;
+        return F;
+    }
+};
 
-    return true;
-}
-
-
-int main(int argc, char* argv[])
-{
-    ios_base::sync_with_stdio(false);
-
-    int N, M, G, a, b, res, m, i, j, k;
-    int points[40];
-    int games[40][40];
+int main(int argc, char **argv){
+    int N, M, G, a, b, i, j, k, S, T, V, jogos_flux, cap_jogos, max_flow, pontos_restantes;
+    int pontos[40], jogos[40][40];
     char op;
     bool flag;
 
-    while(std::cin >> N >> M >> G && N > 0 && M > 0 && G > 0)
-    {
-        for(i = 0; i < N; i++)
-        {
-            points[i] = 0;
-
+    while(cin >> N >> M >> G && N > 0 && M > 0 && G > 0){
+        for(i = 0; i < N; i++){
+            pontos[i] = 0;
             for (j = 0; j < N; j++)
-                games[i][j] = M;
+                jogos[i][j] = M;
         }
-
-        res = M * N * (N-1) / 2 - G;
-
-        for(i = 0; i < G; i++)
-        {
-            std::cin >> a >> op >> b;
-            games[a][b]--;
-            games[b][a]--;
+        for(i = 0; i < G; i++){
+            cin >> a >> op >> b;
+            jogos[a][b]--;
+            jogos[b][a]--;
             if(op == '=')
             {
-                points[a]++;
-                points[b]++;
+                pontos[a]++;
+                pontos[b]++;
             }
             else
             {
-                points[b] += 2;
+                pontos[b] += 2;
             }
         }
 
         for(i = 1; i < N; i++)
-        {
-            points[0] += 2 * games[0][i];
-            res -= games[0][i];
-            printf("games[0][%d] = %d res = %d\n",i, games[0][i], res);
-        }
-        printf("Pontos 0: %d\n",points[0]);
+            pontos[0] += 2 * jogos[0][i];
 
         flag = true;
         for(i = 1; i < N; i++){
-            printf("Pontos %d: %d\n",i,points[i]);
-            if(points[i] >= points[0])
+            if(pontos[i] >= pontos[0]){
                 flag = false;
+            }
         }
 
         if(!flag)
         {
-            std::cout << "N" << endl;
+            cout << "N" << endl;
             continue;
         }
 
-        V = 1 + res + N;
-        E = 0;
+        V = N*N+N+2;
+        dinic D(V);
 
-        for(i = 0; i < 2*MAX_EDGES; i++)
-            prox[i] = -1;
+        S = V-1;
+        T = V-2;
+        k = N;
+        pontos_restantes=0;
+        for(i = 1; i < N; i++) {
+            for(j=1; j < N; j++){
+                if(i > j){
+                    pontos_restantes += jogos[i][j]*2;
+                    D.add(S, k, jogos[i][j]*2);
 
-        for (i = 0; i < V; i++)
-            last[i] = -1;
-
-        for(i = 1; i <= res; i++){
-            to[E] = i;
-            cap[E] = 2;
-            prox[E] = last[0];
-            last[0] = E++;
-
-            to[E] = 0;
-            cap[E] = 0;
-            prox[E] = last[i];
-            last[i] = E++;
-        }
-
-        m = 1;
-
-        for(i = 1; i < N; i++)
-        {
-            for(j = i + 1; j < N; j++)
-            {
-                for(k = 0; k < games[i][j]; k++)
-                {
-                    to[E] = res + i;
-                    cap[E] = 2;
-                    prox[E] = last[m];
-                    last[m] = E++;
-
-                    to[E] = m;
-                    cap[E] = 0;
-                    prox[E] = last[res + i];
-                    last[res + i] = E++;
-
-                    to[E] = res + j;
-                    cap[E] = 2;
-                    prox[E] = last[m];
-                    last[m] = E++;
-
-                    to[E] = m;
-                    cap[E] = 0;
-                    prox[E] = last[res + j];
-                    last[res + j] = E++;
-
-                    m++;
+                    D.add(k, i, jogos[i][j]*2);
+                    D.add(k, j, jogos[i][j]*2);
+                    D.add(i,T, pontos[0]-pontos[i]-1);
+                    k++;
                 }
             }
         }
 
-        for(i = 1; i < N; i++)
-        {
-            to[E] = V - 1;
-            cap[E] = points[0] - points[i] - 1;
-            prox[E] = last[res + i];
-            last[res + i] = E++;
-
-            to[E] = res + i;
-            cap[E] = 0;
-            prox[E] = last[V - 1];
-            last[V - 1] = E++;
-        }
-
-        for(i = 0; i < E; i++)
-            flow[i] = 0;
-
-        t = V - 1;
-        f = 0;
-
-        while(expanding());
-
-        if(f == res * 2)
-            std::cout << "Y" << endl;
+        max_flow = D.max_flow(S,T);
+        if(pontos_restantes == max_flow)
+            cout << "Y" << endl;
         else
-            std::cout << "N" << endl;
+            cout << "N" << endl;
+
     }
+
     return 0;
 }
